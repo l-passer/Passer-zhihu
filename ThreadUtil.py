@@ -1,5 +1,6 @@
 # encoding=utf8
 import Util,urllib
+from IpProxy import *
 
 class ThreadDeco(object):
 
@@ -8,6 +9,9 @@ class ThreadDeco(object):
 
 	def __call__(self,*args):
 		self._func(*args)
+		proxies = {}
+		proxy = Proxy()
+		# proxies['https'] = proxy.archieve_activity_proxy()
 		while True:
 			if not args[0].empty():
 				page = args[0].get()
@@ -15,32 +19,47 @@ class ThreadDeco(object):
 					args[0].put(Util.ENG_FLAG)
 					args[1].put(Util.ENG_FLAG)
 					break
-
-				res = args[2].get(page,headers=Util.Default_Headers)
-				if res.status_code == 200:
-					args[1].put(res)
-					args[0].task_done()
-
+					
+				while True:
+					try:
+						res = args[2].get(page,headers=Util.Default_Headers,proxies=proxies,timeout=2)
+						if res.status_code == 200:
+							args[1].put(res)
+							args[0].task_done()
+							break
+						else:
+							proxies['https'] = proxy.archieve_activity_proxy()
+					except Exception as e:
+						proxies['https'] = proxy.archieve_activity_proxy()
+				
 
 def init_thread(url,pageCount,url_queue,s):
 	ftype = url.split('/')[-1]
 	offset,count_page = 1,0
 	post_data = {'offset':offset,'limit':pageCount,'include':choose_include(ftype)}
-
 	answer_data = urllib.parse.urlencode(post_data)
-	r = s.get(url='{}?{}'.format(url,answer_data),headers=Util.Default_Headers)
-	if r.status_code == 200:
-		count_page = (int(r.json()['paging']['totals'])-1)//pageCount + 1
-		
-	for page in range(0,count_page):
-		post_data['offset'] = page*pageCount + 1
-		answer_data = urllib.parse.urlencode(post_data)
-		url_queue.put('{}?{}'.format(url,answer_data))
+	proxies = {}
+	proxy = Proxy()
+	# proxies['https'] = proxy.archieve_activity_proxy()
+	while True:	
+		try:
+			r = s.get(url='{}?{}'.format(url,answer_data),headers=Util.Default_Headers,proxies=proxies)
+			if r.status_code == 200:
+				count_page = (int(r.json()['paging']['totals'])-1)//pageCount + 1
+				for page in range(0,count_page):
+					post_data['offset'] = page*pageCount
+					answer_data = urllib.parse.urlencode(post_data)
+					url_queue.put('{}?{}'.format(url,answer_data))
+			else:
+				proxies['https'] = proxy.archieve_activity_proxy()
+			break
+		except Exception as e:
+			proxies['https'] = proxy.archieve_activity_proxy()
 
 def choose_include(ftype):
 	if ftype == 'voters':
 		return 'data[*].answer_count,articles_count,follower_count,gender,is_followed,is_following,badge[?(type=best_answerer)].topics'
-	elif ftype == 'folowees' or ftype == 'followers':
+	elif ftype == 'followees' or ftype == 'followers':
 		return 'data[*].answer_count,articles_count,gender,follower_count,is_followed,is_following,badge[?(type=best_answerer)].topics'
 	elif ftype == 'favlists':
 		return 'data[*].updated_time,answer_count,follower_count,creator,is_following'

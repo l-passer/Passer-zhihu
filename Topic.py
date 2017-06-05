@@ -58,6 +58,9 @@ class Topic(object):
 					vote_number = item.find('a',class_='zm-item-vote-count js-expand js-vote-count')
 					vote_number = vote_number.text if vote_number else 0
 
+					answer_content = item.find('textarea',{'class':'content'})
+					answer_content = answer_content.text if answer_content else None
+
 					author = item.find('a',{'class':'author-link'})
 					author_name,author_href = None,None
 					if author:
@@ -74,4 +77,4 @@ class Topic(object):
 						modify_time = item_time.text
 
 
-					print(question_url,question_title,answer_href,vote_number,author_name,author_href,create_time,modify_time)
+					print(question_url,question_title,answer_href,vote_number,author_name,author_href,create_time,modify_time,answer_content)

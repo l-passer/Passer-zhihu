@@ -109,3 +109,6 @@ class Answer(object):
 						articles_count = x['articles_count']
 						follower_count = x['follower_count']
 						print(name,url_token,gender,answer_count,articles_count,follower_count)
+
+	def archieve_answer_comments(self):
+		pass

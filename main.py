@@ -3,12 +3,13 @@ from User import *
 from Answer import *
 from Topic import *
 from Column import *
+from Activity import *
 
 user = User()
-u = user.login('','')
+u = user.login('18052098217','Www.google.com2')
 
 # 一个获取问题所有回答相关信息的例子
-# Question('19698905',u).archieve_answerlist()
+Question('24183980',u).archieve_answerlist()
 
 # 一个获取回答基本信息的例子，
 # 还可以获取所有收藏该回答的收藏夹以及所有点赞用户
@@ -22,10 +23,10 @@ u = user.login('','')
 '''
 	followers,followees,following-columns,following-questions,asks
 '''
-# user.archieve_list('ying-shi-tong-xue','questions')
+# user.archieve_list('sgai','followers')
 
 # 一个用来获取话题所有精华问题的例子
-# Topic('19577498',u).archieve_topanswers()
+# Topic('20047590',u).archieve_topanswers()
 
 # 一个用来获取专栏所有文章的例子
-Column('shitumao',u).archieve_articles()
+# Column('shitumao',u).archieve_articles()

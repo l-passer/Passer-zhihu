@@ -160,7 +160,7 @@ class User(object):
 				if html_page == Util.ENG_FLAG:
 					break
 
-				if ftype == 'folowees' or ftype == 'followers':	
+				if ftype == 'followees' or ftype == 'followers':	
 					html_page = html_page.json()
 					for x in html_page['data']:
 						answer_count = x['answer_count']
@@ -168,7 +168,10 @@ class User(object):
 						gender = x['gender']
 						name = x['name']
 						url_token = x['url_token']
-						print(answer_count,articles_count,gender,name,url_token)
+						follower_count = x['follower_count']
+						if int(follower_count) < 1000 and int(follower_count) > 100:
+							print(url_token)
+
 					self.html_queue.task_done()
 				
 				elif ftype == 'following-columns':
