@@ -9,7 +9,7 @@ user = User()
 u = user.login('18052098217','Www.google.com2')
 
 # 一个获取问题所有回答相关信息的例子
-Question('24183980',u).archieve_answerlist()
+# Question('24183980',u).archieve_answerlist('')
 
 # 一个获取回答基本信息的例子，
 # 还可以获取所有收藏该回答的收藏夹以及所有点赞用户
@@ -26,7 +26,12 @@ Question('24183980',u).archieve_answerlist()
 # user.archieve_list('sgai','followers')
 
 # 一个用来获取话题所有精华问题的例子
-# Topic('20047590',u).archieve_topanswers()
+'''
+话题精华问题：top-answers 所有问题：questions
+'''
+t = Topic('19610067',u)
+t.archieve_list(10,'questions')
+# t.save_list('Test.xls')
 
 # 一个用来获取专栏所有文章的例子
 # Column('shitumao',u).archieve_articles()

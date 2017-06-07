@@ -23,6 +23,6 @@ TOPIC_API = BASE_URL + '/topic/'
 QUESTION_URL = BASE_URL + '/question/'
 
 ZHUANLAN_ARTICLE = ZHUANLAN_URL + '/api/columns'
-
+PROXIES = {'https':'1.1.1.1'}
 ENG_FLAG = 'End'
 HTML_TAG_REX = r'(<img.*?>)|(<a.*?</a>)|(<br>)|(</?blockquote>)|(</?noscript>)|(<p.*?</p>)|(<b.*?</b>)'

@@ -9,28 +9,30 @@ class ThreadDeco(object):
 
 	def __call__(self,*args):
 		self._func(*args)
-		proxies = {}
 		proxy = Proxy()
-		# proxies['https'] = proxy.archieve_activity_proxy()
 		while True:
 			if not args[0].empty():
 				page = args[0].get()
 				if page == Util.ENG_FLAG:
-					args[0].put(Util.ENG_FLAG)
 					args[1].put(Util.ENG_FLAG)
 					break
 					
 				while True:
 					try:
-						res = args[2].get(page,headers=Util.Default_Headers,proxies=proxies,timeout=2)
-						if res.status_code == 200:
+						res = args[2].get(url=page,headers=Util.Default_Headers,timeout=2)
+						status_code = res.status_code
+						if status_code == 200:
 							args[1].put(res)
 							args[0].task_done()
 							break
+						elif status_code == 404:
+							break
+						elif status_code == 401 or status_code == 410:
+							break
 						else:
-							proxies['https'] = proxy.archieve_activity_proxy()
+							Util.PROXIES['https'] = proxy.archieve_activity_proxy()
 					except Exception as e:
-						proxies['https'] = proxy.archieve_activity_proxy()
+						Util.PROXIES['https'] = proxy.archieve_activity_proxy()
 				
 
 def init_thread(url,pageCount,url_queue,s):
@@ -38,23 +40,26 @@ def init_thread(url,pageCount,url_queue,s):
 	offset,count_page = 1,0
 	post_data = {'offset':offset,'limit':pageCount,'include':choose_include(ftype)}
 	answer_data = urllib.parse.urlencode(post_data)
-	proxies = {}
 	proxy = Proxy()
-	# proxies['https'] = proxy.archieve_activity_proxy()
 	while True:	
 		try:
-			r = s.get(url='{}?{}'.format(url,answer_data),headers=Util.Default_Headers,proxies=proxies)
-			if r.status_code == 200:
+			r = s.get(url='{}?{}'.format(url,answer_data),headers=Util.Default_Headers,timeout=2)
+			status_code = r.status_code
+			if status_code == 200:
 				count_page = (int(r.json()['paging']['totals'])-1)//pageCount + 1
 				for page in range(0,count_page):
 					post_data['offset'] = page*pageCount
 					answer_data = urllib.parse.urlencode(post_data)
 					url_queue.put('{}?{}'.format(url,answer_data))
+				break
+			elif status_code == 404:
+				break
+			elif status_code == 401 or status_code == 410:
+				break
 			else:
-				proxies['https'] = proxy.archieve_activity_proxy()
-			break
+				Util.PROXIES['https'] = proxy.archieve_activity_proxy()
 		except Exception as e:
-			proxies['https'] = proxy.archieve_activity_proxy()
+			Util.PROXIES['https'] = proxy.archieve_activity_proxy()
 
 def choose_include(ftype):
 	if ftype == 'voters':
@@ -69,6 +74,8 @@ def choose_include(ftype):
 		return 'data[*].intro,followers,articles_count,image_url,image_width,image_height,is_following,last_article.created'
 	elif ftype == 'following-questions' or ftype == 'questions':
 		return 'data[*].created,answer_count,follower_count,author'
+	elif ftype == 'comments':
+		return 'data[*].author,collapsed,reply_to_author,disliked,content,voting,vote_count,is_parent_author,is_author'
 	else:
 		return ''
 

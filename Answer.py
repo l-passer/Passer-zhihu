@@ -110,5 +110,9 @@ class Answer(object):
 						follower_count = x['follower_count']
 						print(name,url_token,gender,answer_count,articles_count,follower_count)
 
-	def archieve_answer_comments(self):
-		pass
+				elif ftype == 'comments':
+					for x in html_page['data']:
+						created_time = x['created_time']
+						name = x['author']['member']['name']
+						gender = x['author']['member']['gender']
+						content
